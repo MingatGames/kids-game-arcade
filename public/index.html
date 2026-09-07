@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+  <title>Kids Game Arcade & Adventure Hub 🌈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./portal.css">
+</head>
+<body>
+
+  <div id="arcade-app">
+    <!-- Top Brand Header -->
+    <header class="arcade-header">
+      <div class="header-content">
+        <div class="logo-group">
+          <div class="arcade-icon">🎮</div>
+          <div>
+            <h1 class="portal-title">Kids Game Arcade</h1>
+            <p class="portal-tagline">Play, Learn, Explore & Have Fun! 🌟</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="device-pill" id="device-pill" title="Play on other devices in your home!">
+            <span class="wifi-icon">📶</span>
+            <span id="network-ip-display">Wi-Fi: Connecting...</span>
+          </div>
+          <button id="portal-sound-toggle" class="sound-toggle-btn" title="Toggle Sound">
+            <span id="portal-sound-icon">🔊</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Category Filter Bar -->
+    <nav class="category-nav">
+      <button class="filter-pill active" data-category="all">
+        <span>🌟</span> All Games
+      </button>
+      <button class="filter-pill" data-category="math">
+        <span>🍎</span> Math & Phonics
+      </button>
+      <button class="filter-pill" data-category="3d">
+        <span>☕</span> 3D Worlds & Sim
+      </button>
+    </nav>
+
+    <!-- Main Game Cards Grid Container -->
+    <main class="games-container">
+      <div class="games-grid" id="games-grid">
+        <!-- Injected dynamically by portal.js -->
+        <div class="loading-spinner">Loading magical games... ✨</div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="arcade-footer">
+      <p>Made with 💖 for curious, creative kids • Deploy more games anytime via <code>npm run deploy</code></p>
+    </footer>
+  </div>
+
+  <!-- In-Portal Game Frame Overlay (Kid-Safe Player) -->
+  <div id="game-player-modal" class="game-player-overlay">
+    <div class="player-top-bar">
+      <button id="btn-close-player" class="player-back-btn">
+        <span>⬅</span> Back to Arcade
+      </button>
+      <div class="player-title" id="player-active-title">Playing Game</div>
+      <div class="player-actions">
+        <button id="btn-fullscreen-player" class="player-tool-btn" title="Fullscreen">⛶</button>
+        <button id="btn-newtab-player" class="player-tool-btn" title="Open in New Tab">↗</button>
+      </div>
+    </div>
+    <div class="player-iframe-container">
+      <iframe id="game-iframe" src="about:blank" allow="autoplay; fullscreen" title="Game Frame"></iframe>
+    </div>
+  </div>
+
+  <script type="module" src="./portal.js"></script>
+</body>
+</html>

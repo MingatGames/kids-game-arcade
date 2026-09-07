@@ -1,0 +1,21 @@
+{
+  "name": "kids-game-portal-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Central Kids Game Portal & Local Server for kid-friendly web games",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "deploy": "node scripts/deploy.js",
+    "test": "node tests/server.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.8.0"
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sparkle-academy",
+    "title": "Sparkle Academy",
+    "subtitle": "Magical Math, Matching & Phonics Adventure",
+    "icon": "🌟",
+    "mascot": "🐰",
+    "age": "Age 5 - 7",
+    "category": "math",
+    "categoryLabel": "🍎 Math & Phonics",
+    "themeColor": "#ff70a6",
+    "gradient": "linear-gradient(135deg, #ff9ebb 0%, #ff70a6 100%)",
+    "description": "Feed cute pets yummy treats, match glowing gems, cross rainbow bridges, and pop letter balloons to unlock pet accessories!",
+    "path": "/games/sparkle-academy/",
+    "sourcePath": "C:\\Users\\Dalai\\dev\\games\\sparkle-academy",
+    "controls": "Touch / Mouse",
+    "featured": true,
+    "lastDeployed": "2026-09-07T01:42:02.770Z"
+  },
+  {
+    "id": "cozy-cafe-3d",
+    "title": "Cozy Cafe 3D",
+    "subtitle": "Latte the Latte's 3D Cafe Adventure",
+    "icon": "☕",
+    "mascot": "🐱",
+    "age": "Age 6+",
+    "category": "3d",
+    "categoryLabel": "☕ 3D Worlds & Sim",
+    "themeColor": "#e5a93b",
+    "gradient": "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
+    "description": "Explore a warm 3D cafe! Grind fresh espresso, steam silky milk, pet Mocha the cat, and play jukebox tunes for your cafe guests!",
+    "path": "/games/cozy-cafe-3d/",
+    "sourcePath": "C:\\Users\\Dalai\\dev\\tmp\\cozy-cafe-3d",
+    "controls": "Keyboard & Mouse / Touch",
+    "featured": true,
+    "lastDeployed": "2026-09-07T01:42:07.462Z"
+  }
+]

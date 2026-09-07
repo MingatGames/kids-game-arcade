@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sparkle Academy: Magical Math & Match Adventure</title>
+  <meta name="description" content="A gentle, joyful, and highly rewarding educational web game for 6-year-olds covering math, matching, patterns, and phonics.">
+  <script type="module" crossorigin src="./assets/index-CV0p_hGY.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Cp_kmz_9.css">
+</head>
+<body>
+  <!-- High-DPI Visual Effects Particle Canvas -->
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Top HUD Navigation -->
+    <header class="top-hud">
+      <div class="hud-left">
+        <button class="hud-btn" id="btnHome" title="Back to Academy Hub" aria-label="Home" style="display: none;">
+          🏡
+        </button>
+        <button class="hud-btn pet-avatar-btn" id="hudPetAvatar" title="My Pet Companion" aria-label="Pet Dressing Room">
+          🐰
+        </button>
+      </div>
+
+      <div class="hud-center">
+        <div class="star-counter-pill" title="Magic Stars">
+          <span class="star-rotator">⭐</span>
+          <span id="hudStarCount">6</span>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <button class="hud-btn" id="btnSound" title="Toggle Sound" aria-label="Toggle Sound">
+          🔊
+        </button>
+        <button class="hud-btn" id="btnVoice" title="Toggle Voice Prompts" aria-label="Toggle Voice Prompts">
+          🗣️
+        </button>
+        <button class="hud-btn" id="btnParent" title="Parent Zone" aria-label="Parent Zone">
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screens Viewport -->
+    <main class="main-viewport">
+      <!-- 1. ACADEMY HUB SCREEN -->
+      <section class="view-screen active" id="hubScreen">
+        <div class="hub-hero-banner">
+          <h1 class="academy-title">✨ Sparkle Academy ✨</h1>
+          <p class="academy-tagline">Magical Math, Matching, Patterns & Phonics!</p>
+        </div>
+
+        <div class="portals-grid">
+          <!-- Bakery Portal -->
+          <div class="portal-card card-bakery" data-game="counting" role="button" tabindex="0" aria-label="Fruit Counting and Addition Bakery">
+            <div class="portal-icon-bubble">🍎</div>
+            <h3 class="portal-title">Fruit Bakery</h3>
+            <p class="portal-desc">Count sweet treats & blend smoothie addition!</p>
+            <span class="portal-star-badge">+3 ⭐ Stars</span>
+          </div>
+
+          <!-- Memory Portal -->
+          <div class="portal-card card-memory" data-game="memory" role="button" tabindex="0" aria-label="Rainbow Gem Memory Match">
+            <div class="portal-icon-bubble">💎</div>
+            <h3 class="portal-title">Gem & Friends</h3>
+            <p class="portal-desc">Find matching animal friends & colorful shapes!</p>
+            <span class="portal-star-badge">+3 ⭐ Stars</span>
+          </div>
+
+          <!-- Pattern Portal -->
+          <div class="portal-card card-bridge" data-game="patterns" role="button" tabindex="0" aria-label="Pattern Bridge Adventure">
+            <div class="portal-icon-bubble">🌈</div>
+            <h3 class="portal-title">Pattern Bridge</h3>
+            <p class="portal-desc">Step across the river with rainbow patterns!</p>
+            <span class="portal-star-badge">+3 ⭐ Stars</span>
+          </div>
+
+          <!-- Phonics Portal -->
+          <div class="portal-card card-phonics" data-game="phonics" role="button" tabindex="0" aria-label="Phonics and Word Balloon Pop">
+            <div class="portal-icon-bubble">🔤</div>
+            <h3 class="portal-title">Phonics Balloons</h3>
+            <p class="portal-desc">Pop cheerful letter bubbles to spell words!</p>
+            <span class="portal-star-badge">+3 ⭐ Stars</span>
+          </div>
+        </div>
+
+        <!-- Castle Dressing Room Hub Card -->
+        <div class="dressing-hub-banner" id="dressingPortal" role="button" tabindex="0">
+          <div class="banner-castle-icon">🏰</div>
+          <div class="banner-text-block">
+            <div class="banner-title">Pet Dressing Room & Stickers</div>
+            <div class="banner-subtitle">Try on sparkly crowns, superhero capes & view your sticker diary!</div>
+          </div>
+          <button class="banner-btn-pill">Visit 🎀</button>
+        </div>
+      </section>
+
+      <!-- 2. MINI-GAME ARENA SCREEN -->
+      <section class="view-screen" id="arenaScreen">
+        <div id="arenaMount"></div>
+      </section>
+
+      <!-- 3. PET DRESSING ROOM SCREEN -->
+      <section class="view-screen" id="dressingScreen">
+        <div id="dressingMount"></div>
+      </section>
+    </main>
+
+    <!-- Bottom Live Subtitle & Narration Bar -->
+    <div class="live-subtitle-bar" id="subtitleBar">
+      <button class="btn-replay-voice" id="btnReplayVoice" title="Listen Again" aria-label="Listen Again">
+        📢
+      </button>
+      <span class="subtitle-text" id="subtitleText">Welcome to Sparkle Academy!</span>
+    </div>
+  </div>
+
+  <!-- CELEBRATION MODAL -->
+  <div class="modal-overlay" id="celebrationModal">
+    <div class="modal-card">
+      <div class="celeb-crown-icon">🎉</div>
+      <h2 class="celeb-title" id="celebTitle">Hooray!</h2>
+      <p class="celeb-message" id="celebMessage">You solved the puzzle!</p>
+      <div class="celeb-stars-badge" id="celebStars">+3 Stars! ⭐</div>
+      <button class="modal-btn-primary" id="btnCelebContinue">Keep Playing! 🌟</button>
+    </div>
+  </div>
+
+  <!-- PARENT ZONE MODAL -->
+  <div class="modal-overlay" id="parentModal">
+    <div class="modal-card">
+      <h2 class="celeb-title">⚙️ Parent Zone</h2>
+      <p class="celeb-message">Learning statistics & progress settings</p>
+      <div class="parent-stats-list" id="parentStatsContent"></div>
+      <div class="parent-actions">
+        <button class="modal-btn-secondary" id="btnCloseParent">Close</button>
+        <button class="modal-btn-danger" id="btnResetData">Reset All Progress</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main ES6 Entry Point -->
+</body>
+</html>

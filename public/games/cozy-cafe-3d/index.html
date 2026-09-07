@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+  <title>Cozy Cafe 3D — Latte the Latte</title>
+  <style>
+    :root {
+      --bg-warm: #2b1d16;
+      --panel-bg: rgba(38, 26, 20, 0.90);
+      --accent-gold: #e5a93b;
+      --accent-cream: #faecd8;
+      --accent-green: #48bb78;
+      --accent-red: #f56565;
+      --accent-orange: #ed8936;
+      --border-warm: #5c3c28;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a100b;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--accent-cream);
+      touch-action: none;
+    }
+
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      touch-action: none;
+    }
+
+    /* HUD Layer */
+    #hud {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      z-index: 10;
+    }
+
+    /* Top Bar: Stats & Active Orders */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .cafe-stats {
+      background: var(--panel-bg);
+      border: 2px solid var(--border-warm);
+      border-radius: 12px;
+      padding: 10px 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 170px;
+      pointer-events: auto;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-val {
+      color: var(--accent-gold);
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .stars-val {
+      color: #ffd700;
+      letter-spacing: 1.5px;
+    }
+
+    /* Active Orders Queue - Cute & Clean */
+    .orders-container {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      flex: 1;
+      max-width: 650px;
+    }
+
+    .order-capsule {
+      background: var(--panel-bg);
+      border: 2px solid var(--accent-gold);
+      border-radius: 20px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      animation: capsuleIn 0.25s ease-out;
+      pointer-events: auto;
+    }
+
+    @keyframes capsuleIn {
+      from { transform: translateY(-12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .order-capsule-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      white-space: nowrap;
+    }
+
+    .order-capsule-items {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .order-item-badge {
+      font-size: 15px;
+      line-height: 1;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 3px 6px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .order-item-badge.done {
+      background: rgba(72, 187, 120, 0.35);
+      color: #81c784;
+    }
+
+    .hud-controls-panel {
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn-hud {
+      background: var(--panel-bg);
+      border: 2px solid var(--border-warm);
+      color: var(--accent-cream);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .btn-hud:hover {
+      border-color: var(--accent-gold);
+      background: rgba(92, 60, 40, 0.85);
+      transform: translateY(-2px);
+    }
+
+    .btn-hud.btn-shop {
+      border-color: #ffd700;
+      color: #ffd700;
+    }
+
+    /* Center Interaction Prompt */
+    #interaction-prompt {
+      position: fixed;
+      top: 56%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--panel-bg);
+      border: 2px solid var(--accent-gold);
+      border-radius: 30px;
+      padding: 8px 20px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent-cream);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .key-badge {
+      background: var(--accent-gold);
+      color: #2b1d16;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-weight: 900;
+      font-size: 13px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Station Interactive Item Picker (Bakery, Drink Bar, etc.) */
+    #station-menu {
+      position: fixed;
+      bottom: 88px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(30, 18, 12, 0.95);
+      border: 2px solid var(--accent-gold);
+      border-radius: 18px;
+      padding: 10px 18px;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.7), 0 0 18px rgba(229, 169, 59, 0.25);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 30;
+      pointer-events: auto;
+      max-width: 95vw;
+      animation: stationMenuIn 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+    }
+
+    @keyframes stationMenuIn {
+      from { transform: translate(-50%, 15px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .station-menu-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+      border-bottom: 1px solid rgba(229, 169, 59, 0.25);
+      padding-bottom: 4px;
+    }
+
+    .station-menu-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      letter-spacing: 0.5px;
+    }
+
+    .station-menu-sub {
+      font-size: 12px;
+      color: #d7ccc8;
+    }
+
+    .station-menu-items {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      max-width: 100%;
+      padding: 4px 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .station-item-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(229, 169, 59, 0.35);
+      border-radius: 12px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      min-width: 82px;
+      transition: all 0.15s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .station-item-card:hover {
+      background: rgba(229, 169, 59, 0.25);
+      border-color: var(--accent-gold);
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 5px 14px rgba(229, 169, 59, 0.35);
+    }
+
+    .station-item-card:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    .station-item-card.needed {
+      border-color: #ffd700;
+      background: rgba(255, 215, 0, 0.16);
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+    }
+
+    .station-item-card.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .station-item-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .station-item-name {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--accent-cream);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .station-item-needed-badge {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #2b1d16;
+      background: #ffd700;
+      padding: 1px 6px;
+      border-radius: 6px;
+      line-height: 1.1;
+      margin-top: 1px;
+    }
+
+    .station-item-key {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      font-size: 9px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    /* Bottom Bar: Held Items Tray */
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      gap: 12px;
+    }
+
+    .tray-panel {
+      background: var(--panel-bg);
+      border: 2px solid var(--border-warm);
+      border-radius: 14px;
+      padding: 10px 16px;
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      pointer-events: auto;
+    }
+
+    .tray-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      text-transform: uppercase;
+    }
+
+    .tray-slots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tray-slot {
+      width: 58px;
+      height: 58px;
+      border: 2px dashed var(--border-warm);
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tray-slot.filled {
+      border: 2px solid var(--accent-gold);
+      background: rgba(229, 169, 59, 0.15);
+    }
+
+    .tray-slot-label {
+      position: absolute;
+      bottom: 2px;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: var(--accent-cream);
+      text-align: center;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 2px;
+    }
+
+    /* Floating Cash / Notification Popups */
+    .floating-popup {
+      position: absolute;
+      color: var(--accent-gold);
+      font-size: 20px;
+      font-weight: 900;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      pointer-events: none;
+      animation: floatUp 1.2s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+      z-index: 30;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 0; transform: translateY(0) scale(0.6); }
+      20% { opacity: 1; transform: translateY(-15px) scale(1.1); }
+      100% { opacity: 0; transform: translateY(-70px) scale(1); }
+    }
+
+
+
+    /* Modal dialogs */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 6, 4, 0.85);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #251610;
+      border: 3px solid var(--accent-gold);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 620px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      color: var(--accent-gold);
+      margin-top: 0;
+      margin-bottom: 14px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Upgrades & Recipes Grid */
+    .upgrade-card {
+      background: rgba(0,0,0,0.35);
+      border: 1.5px solid var(--border-warm);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s ease;
+    }
+
+    .upgrade-card.owned {
+      border-color: #48bb78;
+      background: rgba(72, 187, 120, 0.08);
+    }
+
+    .upgrade-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .upgrade-icon {
+      font-size: 28px;
+      min-width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(229, 169, 59, 0.15);
+      border-radius: 8px;
+    }
+
+    .btn-buy {
+      background: var(--accent-gold);
+      color: #2b1d16;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      min-width: 90px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-buy:hover:not(:disabled) {
+      background: #ffd700;
+      transform: scale(1.05);
+    }
+
+    .btn-buy:disabled {
+      background: #555;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .btn-buy.owned-badge {
+      background: #48bb78;
+      color: #fff;
+      cursor: default;
+    }
+
+    /* Settings Form */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .setting-row input[type="range"] {
+      width: 160px;
+      accent-color: var(--accent-gold);
+    }
+
+    .btn-primary {
+      background: var(--accent-gold);
+      color: #2b1d16;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 6px 16px rgba(229, 169, 59, 0.4);
+      transition: all 0.2s ease;
+      margin-top: 14px;
+    }
+
+    .btn-primary:hover {
+      background: #f7bd55;
+      transform: translateY(-2px);
+    }
+
+    /* Mobile Joystick */
+    #touch-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      width: 120px;
+      height: 120px;
+      display: none;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0.65;
+      transition: opacity 0.2s ease;
+    }
+
+    .joystick-base {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(43, 29, 22, 0.45);
+      border: 3px solid rgba(229, 169, 59, 0.55);
+      position: relative;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 0 16px rgba(229, 169, 59, 0.15);
+    }
+
+    .joystick-thumb {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fadc96, #e5a93b 70%, #b87b1c 100%);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.6);
+      border: 2px solid #fff;
+    }
+
+    .touch-btn-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+      z-index: 50;
+      pointer-events: auto;
+    }
+
+    .touch-round-btn {
+      border-radius: 50%;
+      border: 3px solid #fff;
+      font-weight: 900;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.1s ease;
+    }
+
+    .touch-round-btn:active {
+      transform: scale(0.92);
+    }
+
+    #touch-action-btn {
+      width: 80px;
+      height: 80px;
+      background: var(--accent-gold);
+      color: #2b1d16;
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    #touch-trash-btn {
+      width: 52px;
+      height: 52px;
+      background: #e53935;
+      color: #fff;
+      font-size: 20px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-DYyTfw9Y.js"></script>
+</head>
+<body>
+
+  <div id="game-container"></div>
+
+  <!-- HUD Overlay -->
+  <div id="hud">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <!-- Cafe Metrics -->
+      <div class="cafe-stats">
+        <div class="stat-row">
+          <span>Earnings:</span>
+          <span class="stat-val" id="stat-money">$0.00</span>
+        </div>
+        <div class="stat-row">
+          <span>Bank:</span>
+          <span class="stat-val" id="stat-balance" style="color: #81c784;">$0.00</span>
+        </div>
+        <div class="stat-row">
+          <span>Tips:</span>
+          <span class="stat-val" id="stat-tips">$0.00</span>
+        </div>
+        <div class="stat-row">
+          <span>Rating:</span>
+          <span class="stars-val" id="stat-rating">⭐⭐⭐⭐⭐</span>
+        </div>
+      </div>
+
+      <!-- Live Order Tickets -->
+      <div class="orders-container" id="orders-container">
+        <!-- Tickets populated via JavaScript -->
+      </div>
+
+      <!-- Top HUD Navigation -->
+      <div class="hud-controls-panel">
+        <button class="btn-hud btn-shop" id="btn-upgrades">⭐ Upgrades (U)</button>
+        <button class="btn-hud" id="btn-recipes">📖 Recipes (R)</button>
+        <button class="btn-hud" id="btn-settings">⚙️ Settings</button>
+      </div>
+    </div>
+
+    <!-- Center Interaction Prompt -->
+    <div id="interaction-prompt">
+      <span class="key-badge" id="prompt-key">E</span>
+      <span id="prompt-action">Brew Coffee</span>
+    </div>
+
+    <!-- Station Interactive Item Picker (Bakery Treats, Drink Bar, etc.) -->
+    <div id="station-menu" class="hidden">
+      <div class="station-menu-header">
+        <span class="station-menu-title" id="station-menu-title">🥐 Bakery Treats</span>
+        <span class="station-menu-sub" id="station-menu-sub">Choose a treat to pick up:</span>
+      </div>
+      <div class="station-menu-items" id="station-menu-items"></div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <!-- Held Items Tray -->
+      <div class="tray-panel">
+        <div class="tray-title">Barista Serving Tray (Held Items)</div>
+        <div class="tray-slots">
+          <div class="tray-slot" id="tray-slot-0">
+            <span class="tray-slot-icon"></span>
+            <span class="tray-slot-label">Empty</span>
+          </div>
+          <div class="tray-slot" id="tray-slot-1">
+            <span class="tray-slot-icon"></span>
+            <span class="tray-slot-label">Empty</span>
+          </div>
+          <div class="tray-slot hidden" id="tray-slot-2">
+            <span class="tray-slot-icon"></span>
+            <span class="tray-slot-label">Empty</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Control Tips -->
+      <div style="font-size: 13px; color: #bcaaa4; background: var(--panel-bg); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-warm);">
+        <b>WASD</b>: Move | <b>Mouse</b>: Look | <b>E / Space</b>: Interact | <b>X</b>: Trash | <b>U</b>: Upgrades
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Touch Controls -->
+  <div id="touch-controls">
+    <div class="joystick-base" id="joystick-base">
+      <div class="joystick-thumb" id="joystick-thumb"></div>
+    </div>
+  </div>
+  <div class="touch-btn-container" id="touch-btn-container">
+    <button id="touch-trash-btn" class="touch-round-btn" title="Discard Held Item">🗑️</button>
+    <button id="touch-action-btn" class="touch-round-btn">⚡<br>ACTION</button>
+  </div>
+
+  <!-- Welcome / Audio Unlock Splash Screen -->
+  <div class="modal-overlay" id="welcome-modal">
+    <div class="modal-box" style="text-align: center;">
+      <div style="font-size: 54px; margin-bottom: 10px;">☕🍒</div>
+      <h1 class="modal-title">COZY CAFE 3D: LATTE'S RUSH</h1>
+      <p style="color: #e0d0c0; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+        Welcome to your cozy cafe! Control <b>Latte the Latte</b> as the friendly barista in chief. Meet arriving customers at the front desk, brew fresh coffee, blend smoothies, grab warm pastries, pet <b>Mocha the Cafe Cat 🐱</b>, and purchase cafe upgrades!
+      </p>
+
+      <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 14px; margin-bottom: 20px; text-align: left; font-size: 13.5px; color: #d7ccc8;">
+        <p style="margin: 4px 0;">🎮 <b>Movement:</b> <b>W, A, S, D</b> or Arrow Keys (Shift to Sprint)</p>
+        <p style="margin: 4px 0;">🎥 <b>Camera:</b> Move <b>Mouse</b> to rotate perspective (Click to lock cursor)</p>
+        <p style="margin: 4px 0;">⚡ <b>Interact:</b> <b>E</b> or <b>Spacebar</b> when near any station or customer</p>
+        <p style="margin: 4px 0;">⭐ <b>Upgrades:</b> Press <b>U</b> to visit the Upgrade Shop</p>
+        <p style="margin: 4px 0;">🐱 <b>Mocha the Cat:</b> Press <b>E</b> to pet Mocha for sweet purrs, hearts & tip bonuses!</p>
+      </div>
+
+      <button class="btn-primary" id="btn-start-game">OPEN CAFE & START SERVING</button>
+    </div>
+  </div>
+
+  <!-- Cafe Upgrade Shop Modal -->
+  <div class="modal-overlay hidden" id="shop-modal">
+    <div class="modal-box">
+      <h2 class="modal-title">⭐ Cafe Upgrade Shop</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: 10px; margin-bottom: 16px;">
+        <span style="font-size: 15px; font-weight: 700;">Available Balance:</span>
+        <span style="font-size: 20px; font-weight: 900; color: #81c784;" id="shop-balance">$0.00</span>
+      </div>
+      
+      <div id="shop-items-container">
+        <!-- Upgrades injected via JS -->
+      </div>
+
+      <button class="btn-primary" id="btn-close-shop">CLOSE SHOP</button>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay hidden" id="settings-modal">
+    <div class="modal-box">
+      <h2 class="modal-title">⚙️ Game Settings</h2>
+      
+      <div class="setting-row">
+        <span>Master Volume</span>
+        <input type="range" id="setting-master-vol" min="0" max="1" step="0.05" value="0.7">
+      </div>
+      <div class="setting-row">
+        <span>BGM Music Volume</span>
+        <input type="range" id="setting-bgm-vol" min="0" max="1" step="0.05" value="0.25">
+      </div>
+      <div class="setting-row">
+        <span>SFX Volume</span>
+        <input type="range" id="setting-sfx-vol" min="0" max="1" step="0.05" value="0.8">
+      </div>
+      <div class="setting-row">
+        <span>Camera Mouse Sensitivity</span>
+        <input type="range" id="setting-sens" min="0.5" max="2.0" step="0.1" value="1.0">
+      </div>
+      <div class="setting-row">
+        <span>High-Quality Soft Shadows</span>
+        <input type="checkbox" id="setting-shadows" checked>
+      </div>
+
+      <div style="margin-top: 20px; text-align: center;">
+        <button id="btn-reset-save" style="background: #e53935; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+          🗑️ Reset Career Save Data
+        </button>
+      </div>
+
+      <button class="btn-primary" id="btn-close-settings">SAVE & CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Recipe Guide Modal -->
+  <div class="modal-overlay hidden" id="recipe-modal">
+    <div class="modal-box">
+      <h2 class="modal-title">📖 Barista Recipe Guide</h2>
+      <p style="color: #d7ccc8; font-size: 13.5px; text-align: center; margin-bottom: 16px;">Follow these steps at the kitchen stations to prepare treats:</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 16px;">
+        <div class="upgrade-card" style="margin-bottom:0;">
+          <div class="upgrade-info"><span class="upgrade-icon">☕</span><div><b>Hot Espresso</b><br><small style="color:#bbb;">Grind shot at Coffee Machine</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0;">
+          <div class="upgrade-info"><span class="upgrade-icon">🥛</span><div><b>Vanilla / Caramel Latte</b><br><small style="color:#bbb;">Brew Espresso $\to$ Add Syrup Pump</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0;">
+          <div class="upgrade-info"><span class="upgrade-icon">🍵</span><div><b>Iced Matcha Latte</b><br><small style="color:#bbb;">Blend at Cold & Blender Bar</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0;">
+          <div class="upgrade-info"><span class="upgrade-icon">🥤</span><div><b>Berry Smoothie</b><br><small style="color:#bbb;">Blend at Cold & Blender Bar</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0;">
+          <div class="upgrade-info"><span class="upgrade-icon">🥐</span><div><b>Bakery Pastries</b><br><small style="color:#bbb;">Pick from Bakery Glass Case</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0; border-color:#ff80ab;">
+          <div class="upgrade-info"><span class="upgrade-icon">🐱</span><div><b>Mocha the Cat</b><br><small style="color:#bbb;">Pet Mocha for purrs & tips</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0; border-color:#ffd700;">
+          <div class="upgrade-info"><span class="upgrade-icon">🪙</span><div><b>Dine-In Tables</b><br><small style="color:#bbb;">Customers sit & leave tips; clean with [E]</small></div></div>
+        </div>
+        <div class="upgrade-card" style="margin-bottom:0; border-color:#64b5f6;">
+          <div class="upgrade-info"><span class="upgrade-icon">📻</span><div><b>Vintage Jukebox</b><br><small style="color:#bbb;">Switch lofi music tracks with [E]</small></div></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-close-recipes">BACK TO WORK</button>
+    </div>
+  </div>
+
+</body>
+</html>
