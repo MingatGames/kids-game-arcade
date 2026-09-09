@@ -22,6 +22,41 @@ if (!fs.existsSync(publicGamesDir)) {
   fs.mkdirSync(publicGamesDir, { recursive: true });
 }
 
+export function resolveGameSource(sourcePath) {
+  if (!sourcePath) return null;
+
+  // 1. Check relative to rootDir
+  const resolvedFromRoot = path.resolve(rootDir, sourcePath);
+  if (fs.existsSync(resolvedFromRoot)) {
+    return resolvedFromRoot;
+  }
+
+  // 2. Check relative to process.cwd()
+  const resolvedFromCwd = path.resolve(process.cwd(), sourcePath);
+  if (fs.existsSync(resolvedFromCwd)) {
+    return resolvedFromCwd;
+  }
+
+  // 3. Fallback for Windows-style paths (e.g. C:\Users\... or contains backslashes)
+  const normalized = sourcePath.replace(/\\/g, '/');
+  const baseName = path.basename(normalized);
+
+  // Check sibling in parent directory: ../<baseName>
+  const siblingInParent = path.resolve(rootDir, '..', baseName);
+  if (fs.existsSync(siblingInParent)) {
+    return siblingInParent;
+  }
+
+  // Also check if baseName has aliases (e.g. cozy-cafe-3d -> cozy-cafe)
+  const trimmedName = baseName.replace(/-3d$/i, '');
+  const siblingTrimmed = path.resolve(rootDir, '..', trimmedName);
+  if (fs.existsSync(siblingTrimmed)) {
+    return siblingTrimmed;
+  }
+
+  return null;
+}
+
 function loadGamesRegistry() {
   if (fs.existsSync(gamesJsonPath)) {
     try {
@@ -38,9 +73,9 @@ function saveGamesRegistry(registry) {
 }
 
 export function deployGame(sourceDir, metadata = {}) {
-  const resolvedSource = path.resolve(sourceDir);
-  if (!fs.existsSync(resolvedSource)) {
-    throw new Error(`Source game directory does not exist: ${resolvedSource}`);
+  const resolvedSource = resolveGameSource(sourceDir);
+  if (!resolvedSource) {
+    throw new Error(`Source game directory does not exist: ${sourceDir}`);
   }
 
   // Determine game ID
@@ -61,6 +96,13 @@ export function deployGame(sourceDir, metadata = {}) {
     try {
       const pkg = JSON.parse(fs.readFileSync(gamePkgPath, 'utf8'));
       if (pkg.scripts && pkg.scripts.build) {
+        // Ensure node_modules exists before building
+        const nodeModulesDir = path.join(resolvedSource, 'node_modules');
+        if (!fs.existsSync(nodeModulesDir)) {
+          console.log(`📦 Installing dependencies in ${resolvedSource} ...`);
+          execSync('npm install', { cwd: resolvedSource, stdio: 'inherit' });
+        }
+
         console.log(`🔨 Running build step: npm run build in ${resolvedSource} ...`);
         execSync('npm run build', { cwd: resolvedSource, stdio: 'inherit' });
 
@@ -71,7 +113,14 @@ export function deployGame(sourceDir, metadata = {}) {
         }
       }
     } catch (e) {
-      console.warn(`Build failed or encountered error: ${e.message}. Attempting to copy source directly...`);
+      console.error(`❌ Build failed in ${resolvedSource}: ${e.message}`);
+      const potentialDist = path.join(resolvedSource, 'dist');
+      if (fs.existsSync(potentialDist)) {
+        console.log(`⚠️ Using existing pre-built dist: ${potentialDist}`);
+        buildOutDir = potentialDist;
+      } else {
+        throw new Error(`Build failed for ${metadata.title || gameId} and no distribution directory exists.`);
+      }
     }
   }
 
@@ -119,6 +168,10 @@ export function deployGame(sourceDir, metadata = {}) {
     }
   }
 
+  // Store portable relative path in games.json
+  const relativePath = path.relative(rootDir, resolvedSource).replace(/\\/g, '/');
+  const portableSourcePath = relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+
   // Update games.json registry
   const registry = loadGamesRegistry();
   const existingIdx = registry.findIndex(g => g.id === gameId);
@@ -135,8 +188,9 @@ export function deployGame(sourceDir, metadata = {}) {
     gradient: metadata.gradient || (existingIdx >= 0 ? registry[existingIdx].gradient : 'linear-gradient(135deg, #a0c4ff 0%, #cbf3f0 100%)'),
     description: metadata.description || (existingIdx >= 0 ? registry[existingIdx].description : 'A fun game for kids!'),
     path: `/games/${gameId}/`,
-    sourcePath: resolvedSource,
+    sourcePath: portableSourcePath,
     controls: metadata.controls || (existingIdx >= 0 ? registry[existingIdx].controls : 'Touch / Mouse'),
+    featured: metadata.featured ?? (existingIdx >= 0 ? registry[existingIdx].featured : true),
     lastDeployed: new Date().toISOString()
   };
 
@@ -161,9 +215,10 @@ if (args.length > 0) {
   const registry = loadGamesRegistry();
   console.log(`Found ${registry.length} registered games in games.json to deploy...`);
   for (const game of registry) {
-    if (game.sourcePath && fs.existsSync(game.sourcePath)) {
+    const resolved = resolveGameSource(game.sourcePath);
+    if (resolved) {
       try {
-        deployGame(game.sourcePath, game);
+        deployGame(resolved, game);
       } catch (err) {
         console.error(`Failed to deploy ${game.title}:`, err.message);
       }

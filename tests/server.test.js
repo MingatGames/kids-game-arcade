@@ -9,6 +9,7 @@ import puppeteer from 'puppeteer';
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
+import { resolveGameSource } from '../scripts/deploy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +45,14 @@ async function runTests() {
   const baseUrl = 'http://localhost:8089';
 
   console.log(`Test server running at ${baseUrl}`);
+
+  // Test 0: Cross-platform path resolution
+  console.log("Testing resolveGameSource path resolution...");
+  const resolvedRel = resolveGameSource('../sparkle-academy');
+  if (!resolvedRel) throw new Error("resolveGameSource failed for ../sparkle-academy");
+  const resolvedWin = resolveGameSource('C:\\Users\\Dalai\\dev\\games\\sparkle-academy');
+  if (!resolvedWin) throw new Error("resolveGameSource failed for legacy Windows path");
+  console.log("✅ Cross-platform path resolution verified!");
 
   // Test 1: Verify API /api/games
   console.log("Testing GET /api/games ...");
@@ -137,6 +146,21 @@ async function runTests() {
       throw new Error("Player modal did not close properly");
     }
     console.log("✅ Back to arcade button works!");
+  }
+
+  // Test 5: Verify individual games load in browser without errors
+  for (const gameId of ['sparkle-academy', 'cozy-cafe-3d']) {
+    console.log(`Testing direct browser loading for /games/${gameId}/ ...`);
+    const gamePage = await browser.newPage();
+    const gameErrors = [];
+    gamePage.on('pageerror', err => gameErrors.push(`[PAGE ERROR]: ${err.toString()}`));
+    await gamePage.goto(`${baseUrl}/games/${gameId}/`, { waitUntil: 'load', timeout: 15000 });
+    await new Promise(r => setTimeout(r, 600));
+    if (gameErrors.length > 0) {
+      throw new Error(`Game ${gameId} had page errors: ${gameErrors.join(', ')}`);
+    }
+    console.log(`✅ Game ${gameId} loaded in browser without errors!`);
+    await gamePage.close();
   }
 
   if (errors.length > 0) {

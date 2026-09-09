@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9ebb" />
+      <stop offset="50%" stop-color="#ff70a6" />
+      <stop offset="100%" stop-color="#9d4edd" />
+    </linearGradient>
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#ffeaa7" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#ffb703" stop-opacity="0" />
+    </radialGradient>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#7209b7" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- App Rounded Base -->
+  <rect x="8" y="8" width="240" height="240" rx="54" ry="54" fill="url(#bgGrad)" filter="url(#dropShadow)" />
+  <rect x="12" y="12" width="232" height="232" rx="50" ry="50" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4" />
+
+  <!-- Magic Star Glow -->
+  <circle cx="128" cy="128" r="90" fill="url(#starGlow)" />
+
+  <!-- Big Central Magic Star -->
+  <polygon points="128,45 152,102 214,106 166,146 182,206 128,172 74,206 90,146 42,106 104,102"
+    fill="#ffd166" stroke="#ffb703" stroke-width="6" stroke-linejoin="round" />
+
+  <!-- Inner Star Highlight -->
+  <polygon points="128,62 147,108 196,111 158,143 171,191 128,164 85,191 98,143 60,111 109,108"
+    fill="#fff7d6" opacity="0.85" />
+
+  <!-- Sparkle Stars -->
+  <!-- Top Left Sparkle -->
+  <path d="M 60,60 Q 60,75 45,75 Q 60,75 60,90 Q 60,75 75,75 Q 60,75 60,60 Z" fill="#ffffff" />
+  <!-- Bottom Right Sparkle -->
+  <path d="M 195,185 Q 195,195 185,195 Q 195,195 195,205 Q 195,195 205,195 Q 195,195 195,185 Z" fill="#ffffff" />
+  <!-- Top Right Sparkle -->
+  <path d="M 190,55 Q 190,65 180,65 Q 190,65 190,75 Q 190,65 200,65 Q 190,65 190,55 Z" fill="#ffffff" />
+</svg>

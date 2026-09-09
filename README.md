@@ -7,9 +7,12 @@ Welcome to the **Kids Game Arcade**! A unified web portal and local server desig
 ## 🚀 Quick Start
 
 ### 1. Start the Server
-Open a terminal in this folder:
+Open a terminal in the `kids-game-arcade` directory:
 ```bash
-cd C:\Users\Dalai\dev\games\game-server
+# Install dependencies (first time)
+npm install
+
+# Start the server
 npm start
 ```
 
@@ -24,7 +27,7 @@ You'll see:
 ```
 
 ### 2. Play on PC or iPad / Tablet
-- **On this PC**: Open `http://localhost:8080` in Chrome, Edge, or Safari.
+- **On this PC**: Open `http://localhost:8080` in Chrome, Firefox, Edge, or Safari.
 - **On iPads / Tablets / Phones**: Connect to the same home Wi-Fi and open `http://<your-ip>:8080`.
 
 ---
@@ -48,7 +51,11 @@ npm run deploy -- <path-to-your-game>
 
 ### Example:
 ```bash
-npm run deploy -- C:\Users\Dalai\dev\games\my-new-game
+# Linux / macOS
+npm run deploy -- ../sparkle-academy
+
+# Windows
+npm run deploy -- ..\sparkle-academy
 ```
 
 ### What `npm run deploy` does automatically:

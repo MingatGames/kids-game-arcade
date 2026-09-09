@@ -26,14 +26,22 @@ app.use(express.json());
 // Helper: Get local network IPv4 address for iPad/Tablet connectivity
 function getLocalNetworkIp() {
   const interfaces = os.networkInterfaces();
+  const preferred = [];
+  const fallback = [];
+
   for (const name of Object.keys(interfaces)) {
+    const isVirtual = /^(docker|br-|veth|virbr|tun|tap|wg|lo)/i.test(name);
     for (const net of interfaces[name]) {
       if (net.family === 'IPv4' && !net.internal) {
-        return net.address;
+        if (!isVirtual) {
+          preferred.push(net.address);
+        } else {
+          fallback.push(net.address);
+        }
       }
     }
   }
-  return 'localhost';
+  return preferred[0] || fallback[0] || 'localhost';
 }
 
 // Read games registry
