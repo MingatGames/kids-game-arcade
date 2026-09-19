@@ -15,7 +15,7 @@
     "sourcePath": "../sparkle-academy",
     "controls": "Touch / Mouse",
     "featured": true,
-    "lastDeployed": "2026-09-09T03:05:30.718Z"
+    "lastDeployed": "2026-09-09T03:07:56.280Z"
   },
   {
     "id": "cozy-cafe-3d",
@@ -33,6 +33,6 @@
     "sourcePath": "../cozy-cafe",
     "controls": "Keyboard & Mouse / Touch",
     "featured": true,
-    "lastDeployed": "2026-09-09T03:05:31.706Z"
+    "lastDeployed": "2026-09-09T03:07:57.268Z"
   }
 ]
