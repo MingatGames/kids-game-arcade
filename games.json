@@ -15,7 +15,7 @@
     "sourcePath": "../sparkle-academy",
     "controls": "Touch / Mouse",
     "featured": true,
-    "lastDeployed": "2026-09-09T03:07:56.280Z"
+    "lastDeployed": "2026-09-19T22:56:05.626Z"
   },
   {
     "id": "cozy-cafe-3d",
@@ -33,6 +33,24 @@
     "sourcePath": "../cozy-cafe",
     "controls": "Keyboard & Mouse / Touch",
     "featured": true,
-    "lastDeployed": "2026-09-09T03:07:57.268Z"
+    "lastDeployed": "2026-09-19T22:56:06.697Z"
+  },
+  {
+    "id": "pet-daycare",
+    "title": "Pet Daycare 3D",
+    "subtitle": "Cozy Pet Care & Daycare Simulation",
+    "icon": "🐶",
+    "mascot": "🐱",
+    "age": "Age 5+",
+    "category": "3d",
+    "categoryLabel": "🐶 Pet Sim & 3D",
+    "themeColor": "#ff70a6",
+    "gradient": "linear-gradient(135deg, #ffcbf2 0%, #f72585 100%)",
+    "description": "Nurture adorable puppies, kittens, and bunnies! Feed, bathe, groom, play fetch, restock supplies, and upgrade your cozy daycare cottage.",
+    "path": "/games/pet-daycare/",
+    "sourcePath": "../pet-daycare",
+    "controls": "Keyboard & Mouse / Touch",
+    "featured": true,
+    "lastDeployed": "2026-09-19T22:56:07.851Z"
   }
 ]

@@ -81,6 +81,15 @@ async function runTests() {
   }
   console.log("✅ Cozy Cafe 3D deployed and serving cleanly!");
 
+  // Test 3b: Verify Pet Daycare game files
+  console.log("Testing GET /games/pet-daycare/index.html ...");
+  const petRes = await fetch(`${baseUrl}/games/pet-daycare/index.html`);
+  const petHtml = await petRes.text();
+  if (petRes.status !== 200 || !petHtml.includes('Pet Daycare')) {
+    throw new Error("Failed to load /games/pet-daycare/index.html");
+  }
+  console.log("✅ Pet Daycare deployed and serving cleanly!");
+
   // Test 4: Headless Browser Verification with Puppeteer
   console.log("Launching headless browser to test Portal UI...");
   const browser = await puppeteer.launch({
@@ -149,7 +158,7 @@ async function runTests() {
   }
 
   // Test 5: Verify individual games load in browser without errors
-  for (const gameId of ['sparkle-academy', 'cozy-cafe-3d']) {
+  for (const gameId of ['sparkle-academy', 'cozy-cafe-3d', 'pet-daycare']) {
     console.log(`Testing direct browser loading for /games/${gameId}/ ...`);
     const gamePage = await browser.newPage();
     const gameErrors = [];
